@@ -46,9 +46,25 @@ public class RecOtherTypeAdapter extends WeSwipeProxyAdapter<RecOtherTypeAdapter
 
     public void removeDataByPosition(int position) {
         if (position >= 0 && position < data.size()) {
-            data.remove(position);
+
+            /**
+             * 当我们需要remove掉一条数据（位置在position）时，
+             * 想要使用RecyclerView的动态效果，就需要调用notifyItemRemoved。
+             * 但是该方法不会使position及其之后位置的vitemiew重新onBindViewHolder。
+             * 所以不当使用会导致下标错乱，各种坑爹的bug就来了。
+             * 弥补上面的问题，你还需要调用 notifyItenRangeChanged方法，使下面的itemview重新onBind，就可以了。
+             */
             proxyNotifyItemRemoved(position);
-            proxyNotifyDataSetChanged();
+            data.remove(position);
+            proxyNotifyItemRangeChanged(position,data.size()-position);
+
+            /**
+             * 下面的方法没有动画效果
+             * 2021年2月25日 11点08分 放弃使用
+             */
+//            proxyNotifyItemRemoved(position);
+//            data.remove(position);
+//            proxyNotifyDataSetChanged();
         }
     }
 
